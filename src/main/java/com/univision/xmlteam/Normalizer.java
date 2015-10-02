@@ -7,6 +7,8 @@ import com.jbjohn.model.Caster;
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
 import de.odysseus.staxon.json.JsonXMLOutputFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -21,35 +23,32 @@ import java.io.*;
 import java.util.HashMap;
 
 /**
- * Created by jbjohn on 10/2/15.
  */
 public class Normalizer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Normalizer.class);
 
     public String normalize(InputStream xml) throws IOException {
 
         InputStream xsl1 = this.getClass().getClassLoader().getResourceAsStream("xsl/xmlteam/bbc-to-xts.xsl");
-        String response1 = transformer(xml, xsl1, false);
+        String response1 = transformer(xml, xsl1);
 
         InputStream xml2 = new ByteArrayInputStream(response1.getBytes());
         InputStream xsl2 = this.getClass().getClassLoader().getResourceAsStream("xsl/xmlteam/xts-to-2.2.xsl");
-        String response2 = transformer(xml2, xsl2, false);
+        String response2 = transformer(xml2, xsl2);
 
         InputStream xml3 = new ByteArrayInputStream(response2.getBytes());
         InputStream xsl3 = this.getClass().getClassLoader().getResourceAsStream("xsl/univision/normalize.xsl");
-        String response3 = transformer(xml3, xsl3, false);
+        String response3 = transformer(xml3, xsl3);
 
         InputStream xml4 = new ByteArrayInputStream(response3.getBytes());
         InputStream xsl4 = this.getClass().getClassLoader().getResourceAsStream("xsl/univision/processingInstructions.xsl");
-        String response4 = transformer(xml4, xsl4, false);
+        String response4 = transformer(xml4, xsl4);
 
         String json = "";
         try {
             json = xmlToJson(response4, true);
-            if (false) {
-                System.out.println(json);
-            }
         } catch (XMLStreamException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception", e);
         }
 
         HashMap<String,Object> result = new ObjectMapper().readValue(json, HashMap.class);
@@ -61,10 +60,11 @@ public class Normalizer {
 
         Gson gson = new Gson();
         String processedJson = gson.toJson(result);
+
         return processedJson;
     }
 
-    public static String transformer(InputStream xml, InputStream xsl, boolean print) {
+    public static String transformer(InputStream xml, InputStream xsl) {
         StreamSource stylesource = new StreamSource(xsl);
         TransformerFactory factory = TransformerFactory.newInstance();
         javax.xml.transform.Transformer transformer;
@@ -77,13 +77,12 @@ public class Normalizer {
             StreamResult result = new StreamResult(writer);
             transformer.transform(source, result);
             String response = writer.toString();
-            if (print) {
-                System.out.println(response);
-            }
             return response;
 
         } catch (TransformerConfigurationException ex) {
+            LOGGER.error("Exception", ex);
         } catch (TransformerException ex) {
+            LOGGER.error("Exception", ex);
         }
         return "";
     }
@@ -107,6 +106,7 @@ public class Normalizer {
             try {
                 return output.toString("UTF-8");
             } catch (UnsupportedEncodingException e) {
+                LOGGER.error("Exception", e);
                 throw new XMLStreamException(e.getMessage());
             }
         } finally {

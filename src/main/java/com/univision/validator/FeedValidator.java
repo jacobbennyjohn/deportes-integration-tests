@@ -1,17 +1,28 @@
 package com.univision.validator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jbjohn.MapUtil;
+import com.univision.feedsyn.FeedProcessor;
 import com.univision.xmlteam.ManifestReader;
 import com.univision.xmlteam.Normalizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Created by jbjohn on 10/2/15.
  */
 public class FeedValidator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedValidator.class);
 
     public static void freshnessCheck() {
         /**
@@ -22,18 +33,50 @@ public class FeedValidator {
          * 5. Validate the feed against the feedsyn response
          */
         String manifestUrl = "http://feed5.xmlteam.com/api/feeds?start=PT2M&format=xml&sport-keys=15054000";
+        String feedDomain = "http://feed5.xmlteam.com/sportsml/files/";
         ManifestReader manifestReader = new ManifestReader();
+        FeedProcessor fp = new FeedProcessor();
         List<String> urlList = manifestReader.fetchLinksAndProcess(manifestUrl);
         if (urlList != null) {
             for (String url : urlList) {
                 try {
-                    String feedResponse = manifestReader.getXMLTeamURL(url);
+                    String originalFeed = manifestReader.getXMLTeamURL(feedDomain + url);
                     Normalizer normalizer = new Normalizer();
-                    String response = normalizer.normalize(new ByteArrayInputStream(feedResponse.getBytes(StandardCharsets.UTF_8)));
+                    String response = normalizer.normalize(new ByteArrayInputStream(originalFeed.getBytes(StandardCharsets.UTF_8)));
 
-                    System.out.println(response);
+                    HashMap<String, Object> jsonMap = new ObjectMapper().readValue(response, HashMap.class);
+
+                    String date = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.@date-time");
+                    String fixture = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.@fixture-key");
+                    String key = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-key");
+
+                    LOGGER.info("date/fixture/key : " + date + "/" + fixture + "/" + key);
+
+                    if (fixture != null && key != null) {
+                        String feedResponse = fp.processFeed(fixture, key);
+                        HashMap<String, Object> feedSynMap = new ObjectMapper().readValue(feedResponse, HashMap.class);
+                        String dateRecieved = (String) MapUtil.get(feedSynMap, "$.data.sports-content.sports-metadata.@date-time");
+
+                        LOGGER.info("date/receivedDate : " + date + "/" + dateRecieved);
+                        if (!dateRecieved.equals(date)) {
+                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+                            Date dateResult1 = dateFormat.parse(date);
+                            Date dateResult2 = dateFormat.parse(dateRecieved);
+
+                            Long secondsDiff = TimeUnit.MILLISECONDS.toSeconds(dateResult1.getTime() - dateResult2.getTime());
+
+                            LOGGER.warn("Document not updated yet, date on manifest/feed : " + date + "/" + dateRecieved + " == fixture/key : " + fixture + "/" + key);
+                            LOGGER.warn("Last update delay (in seconds) :" + secondsDiff);
+
+                            if (secondsDiff > 30) {
+                                LOGGER.error("Document not updated after 30 seconds fixture/key : " + fixture + "/" + key);
+                            }
+                        }
+                    }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("IOException processing feeds", e);
+                } catch (Exception e) {
+                    LOGGER.error("Exception processing feeds", e);
                 }
             }
         }

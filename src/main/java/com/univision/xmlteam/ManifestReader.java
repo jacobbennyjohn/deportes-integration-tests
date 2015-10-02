@@ -4,6 +4,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -27,6 +29,8 @@ import java.util.*;
  * Created by jbjohn on 10/2/15.
  */
 public class ManifestReader {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManifestReader.class);
 
     /**
      * Go through the manifest and recursively call next page if more items exist.
@@ -64,9 +68,13 @@ public class ManifestReader {
             }
 
         } catch (XPathExpressionException e) {
+            LOGGER.error("XPathExpressionException", e);
         } catch (SAXException e) {
+            LOGGER.error("SAXException", e);
         } catch (IOException e) {
+            LOGGER.error("IOException", e);
         } catch (ParserConfigurationException e) {
+            LOGGER.error("ParserConfigurationException", e);
         }
 
         return urls;
@@ -102,7 +110,7 @@ public class ManifestReader {
             response = getXMLTeamURL(url);
             feedUrls = getSportsMLDocURLs(response);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("IOException", e);
         }
 
         return feedUrls;
