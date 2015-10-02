@@ -1,0 +1,3 @@
+[submodule "src/main/resources/xsl"]
+	path = src/main/resources/xsl
+	url = https://github.com/univision/deportes-data-transformations.git

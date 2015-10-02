@@ -1,9 +1,12 @@
 package com.univision.validator;
 
-import com.univision.feedsyn.FeedProcessor;
+import com.univision.xmlteam.ManifestReader;
+import com.univision.xmlteam.Normalizer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Created by jbjohn on 10/2/15.
@@ -18,15 +21,21 @@ public class FeedValidator {
          * 4. Generate Feed syn url for the feeds objects
          * 5. Validate the feed against the feedsyn response
          */
+        String manifestUrl = "http://feed5.xmlteam.com/api/feeds?start=PT2M&format=xml&sport-keys=15054000";
+        ManifestReader manifestReader = new ManifestReader();
+        List<String> urlList = manifestReader.fetchLinksAndProcess(manifestUrl);
+        if (urlList != null) {
+            for (String url : urlList) {
+                try {
+                    String feedResponse = manifestReader.getXMLTeamURL(url);
+                    Normalizer normalizer = new Normalizer();
+                    String response = normalizer.normalize(new ByteArrayInputStream(feedResponse.getBytes(StandardCharsets.UTF_8)));
 
-        FeedProcessor fp = new FeedProcessor();
-        try {
-            String response = fp.processFeed("stats", "832695");
-            System.out.println(response);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+                    System.out.println(response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

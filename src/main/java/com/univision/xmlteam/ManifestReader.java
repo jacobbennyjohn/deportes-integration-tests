@@ -21,8 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by jbjohn on 10/2/15.
@@ -95,10 +94,16 @@ public class ManifestReader {
         return result.toString();
     }
 
-    public List<String> fetchLinksAndProcess(String url, String eventId) throws IOException {
+    public List<String> fetchLinksAndProcess(String url) {
 
-        String response = getXMLTeamURL(url);
-        List<String> feedUrls = getSportsMLDocURLs(response);
+        String response = null;
+        List<String> feedUrls = null;
+        try {
+            response = getXMLTeamURL(url);
+            feedUrls = getSportsMLDocURLs(response);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return feedUrls;
     }
