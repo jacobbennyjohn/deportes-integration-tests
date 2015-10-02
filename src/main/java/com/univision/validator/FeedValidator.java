@@ -50,26 +50,26 @@ public class FeedValidator {
                     String fixture = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.@fixture-key");
                     String key = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-key");
 
-                    LOGGER.info("date/fixture/key : " + date + "/" + fixture + "/" + key);
+                    LOGGER.info("Date/Fixture/Key : " + date + "/" + fixture + "/" + key);
 
                     if (fixture != null && key != null) {
                         String feedResponse = fp.processFeed(fixture, key);
                         HashMap<String, Object> feedSynMap = new ObjectMapper().readValue(feedResponse, HashMap.class);
                         String dateRecieved = (String) MapUtil.get(feedSynMap, "$.data.sports-content.sports-metadata.@date-time");
 
-                        LOGGER.info("date/receivedDate : " + date + "/" + dateRecieved);
+                        LOGGER.info("Date/ReceivedDate : " + date + "/" + dateRecieved);
                         if (!dateRecieved.equals(date)) {
                             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
                             Date dateResult1 = dateFormat.parse(date);
                             Date dateResult2 = dateFormat.parse(dateRecieved);
 
-                            Long secondsDiff = TimeUnit.MILLISECONDS.toSeconds(dateResult1.getTime() - dateResult2.getTime());
+                            Long secondsDiff = TimeUnit.MILLISECONDS.toSeconds(dateResult2.getTime() - dateResult1.getTime());
 
-                            LOGGER.warn("Document not updated yet, date on manifest/feed : " + date + "/" + dateRecieved + " == fixture/key : " + fixture + "/" + key);
+                            LOGGER.warn("Document not updated yet, date Actual/FeedSyn : " + date + "/" + dateRecieved + " == Fixture/Key : " + fixture + "/" + key);
                             LOGGER.warn("Last update delay (in seconds) :" + secondsDiff);
 
                             if (secondsDiff > 30) {
-                                LOGGER.error("Document not updated after 30 seconds fixture/key : " + fixture + "/" + key);
+                                LOGGER.error("Document not updated after 30 seconds Fixture/Key : " + fixture + "/" + key);
                             }
                         }
                     }
