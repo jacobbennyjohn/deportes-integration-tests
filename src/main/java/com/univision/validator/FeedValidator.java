@@ -49,8 +49,10 @@ public class FeedValidator {
         FeedProcessor fp = new FeedProcessor(fsynUrl);
 
         List<String> urlList = manifestReader.fetchLinksAndProcess(manifestUrl);
+        int hashCode = urlList.hashCode();
+
         if (urlList != null) {
-            LOGGER.info("Number of items found : " + urlList.size());
+            LOGGER.info("Hashcode : " + hashCode + " => " + "Number of items found : " + urlList.size());
             for (String url : urlList) {
                 try {
                     String originalFeed = manifestReader.getXMLTeamURL(feedDomain + url);
@@ -63,7 +65,7 @@ public class FeedValidator {
                     String fixture = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.@fixture-key");
                     String key = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-key");
 
-                    LOGGER.info("Date/Fixture/Key : " + date + "/" + fixture + "/" + key);
+                    LOGGER.info("Hashcode : " + hashCode + " => " + "Date/Fixture/Key : " + date + "/" + fixture + "/" + key);
 
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
                     Date documentDate = dateFormat.parse(date);
@@ -81,18 +83,18 @@ public class FeedValidator {
                                         Date feedSynDocDate = dateFormat.parse(dateRecieved);
                                         Long lastUpdateDelay = TimeUnit.MILLISECONDS.toSeconds(documentDate.getTime() - feedSynDocDate.getTime());
 
-                                        LOGGER.warn("Document not updated yet, date Actual/FeedSyn : " + date + "/" + dateRecieved + " == Fixture/Key : " + fixture + "/" + key);
-                                        LOGGER.warn("Last update delay (in seconds) :" + lastUpdateDelay);
+                                        LOGGER.warn("Hashcode : " + hashCode + " => " + "Document not updated yet, date Actual/FeedSyn : " + date + "/" + dateRecieved + " == Fixture/Key : " + fixture + "/" + key);
+                                        LOGGER.warn("Hashcode : " + hashCode + " => " + "Last update delay (in seconds) :" + lastUpdateDelay);
 
                                         if (lastUpdateDelay > notificationTtl) {
-                                            LOGGER.error("Document not updated after " + lastUpdateDelay + " seconds, Fixture/Key : " + fixture + "/" + key);
+                                            LOGGER.error("Hashcode : " + hashCode + " => " + "Document not updated after " + lastUpdateDelay + " seconds, Fixture/Key : " + fixture + "/" + key);
                                         }
                                     }
                                 } else {
                                     Date currentTime = new Date();
                                     Long lastUpdateDelay = TimeUnit.MILLISECONDS.toSeconds(documentDate.getTime() - currentTime.getTime());
                                     if (lastUpdateDelay > notificationTtl) {
-                                        LOGGER.error("Document not available in FeedSyn after " + lastUpdateDelay + " seconds, Fixture/Key : " + fixture + "/" + key);
+                                        LOGGER.error("Hashcode : " + hashCode + " => " + "Document not available in FeedSyn after " + lastUpdateDelay + " seconds, Fixture/Key : " + fixture + "/" + key);
                                     }
                                 }
                             }
@@ -104,6 +106,7 @@ public class FeedValidator {
                     LOGGER.error("Exception processing feeds", e);
                 }
             }
+            LOGGER.info("Hashcode : " + hashCode + " => " + "Processing complete!");
         }
     }
 }

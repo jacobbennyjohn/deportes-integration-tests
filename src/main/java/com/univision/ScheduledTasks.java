@@ -28,7 +28,7 @@ public class ScheduledTasks {
     @Autowired
     private NotificationProperties notification;
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(cron="*/30 * * * * *")
     public void reportCurrentTime() {
         LOGGER.info("Running validation at : " + dateFormat.format(new Date()));
 

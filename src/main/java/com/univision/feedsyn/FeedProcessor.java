@@ -46,7 +46,7 @@ public class FeedProcessor {
         String signature = SignatureGenerator.generateSignature(url);
         url = fsynUrl + url + "?client_id=" + SignatureGenerator.getClientId() + "&signature=" + signature;
         URI uri = new URI(url);
-        LOGGER.info("Processing :" + url);
+        LOGGER.info("Processing : " + url);
         httpGet.setURI(uri);
         httpGet.setHeader("Authorization", "Basic ZGVidWc6WG9vbmcxZWU=");
         HttpResponse response = httpClient.execute(httpGet);
