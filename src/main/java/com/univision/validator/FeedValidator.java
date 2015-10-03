@@ -27,6 +27,12 @@ public class FeedValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedValidator.class);
 
+    private Long notificationTtl = 30L;
+
+    public void setNotificationTtl(Long notificationTtl) {
+        this.notificationTtl = notificationTtl;
+    }
+
     @SuppressWarnings("unchecked")
     @Async
 	public void freshnessCheck(String fsynUrl, String manifestUrl, String feedDomain) {
@@ -41,8 +47,10 @@ public class FeedValidator {
 
         ManifestReader manifestReader = new ManifestReader();
         FeedProcessor fp = new FeedProcessor(fsynUrl);
+
         List<String> urlList = manifestReader.fetchLinksAndProcess(manifestUrl);
         if (urlList != null) {
+            LOGGER.info("Number of items found : " + urlList.size());
             for (String url : urlList) {
                 try {
                     String originalFeed = manifestReader.getXMLTeamURL(feedDomain + url);
@@ -57,24 +65,36 @@ public class FeedValidator {
 
                     LOGGER.info("Date/Fixture/Key : " + date + "/" + fixture + "/" + key);
 
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+                    Date documentDate = dateFormat.parse(date);
+
                     if (fixture != null && key != null) {
                         String feedResponse = fp.processFeed(fixture, key);
-                        HashMap<String, Object> feedSynMap = new ObjectMapper().readValue(feedResponse, HashMap.class);
-                        String dateRecieved = (String) MapUtil.get(feedSynMap, "$.data.sports-content.sports-metadata.@date-time");
+                        if (feedResponse != null) {
+                            HashMap<String, Object> feedSynMap = new ObjectMapper().readValue(feedResponse, HashMap.class);
+                            if (feedSynMap != null) {
+                                String status = (String) MapUtil.get(feedSynMap, "$.status");
+                                if (status.equals("success")) {
+                                    String dateRecieved = (String) MapUtil.get(feedSynMap, "$.data.sports-content.sports-metadata.@date-time");
+                                    LOGGER.info("Date/ReceivedDate : " + date + "/" + dateRecieved);
+                                    if (!dateRecieved.equals(date)) {
+                                        Date feedSynDocDate = dateFormat.parse(dateRecieved);
+                                        Long lastUpdateDelay = TimeUnit.MILLISECONDS.toSeconds(documentDate.getTime() - feedSynDocDate.getTime());
 
-                        LOGGER.info("Date/ReceivedDate : " + date + "/" + dateRecieved);
-                        if (!dateRecieved.equals(date)) {
-                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
-                            Date dateResult1 = dateFormat.parse(date);
-                            Date dateResult2 = dateFormat.parse(dateRecieved);
+                                        LOGGER.warn("Document not updated yet, date Actual/FeedSyn : " + date + "/" + dateRecieved + " == Fixture/Key : " + fixture + "/" + key);
+                                        LOGGER.warn("Last update delay (in seconds) :" + lastUpdateDelay);
 
-                            Long secondsDiff = TimeUnit.MILLISECONDS.toSeconds(dateResult1.getTime() - dateResult2.getTime());
-
-                            LOGGER.warn("Document not updated yet, date Actual/FeedSyn : " + date + "/" + dateRecieved + " == Fixture/Key : " + fixture + "/" + key);
-                            LOGGER.warn("Last update delay (in seconds) :" + secondsDiff);
-
-                            if (secondsDiff > 30) {
-                                LOGGER.error("Document not updated after 30 seconds Fixture/Key : " + fixture + "/" + key);
+                                        if (lastUpdateDelay > notificationTtl) {
+                                            LOGGER.error("Document not updated after " + lastUpdateDelay + " seconds, Fixture/Key : " + fixture + "/" + key);
+                                        }
+                                    }
+                                } else {
+                                    Date currentTime = new Date();
+                                    Long lastUpdateDelay = TimeUnit.MILLISECONDS.toSeconds(documentDate.getTime() - currentTime.getTime());
+                                    if (lastUpdateDelay > notificationTtl) {
+                                        LOGGER.error("Document not available in FeedSyn after " + lastUpdateDelay + " seconds, Fixture/Key : " + fixture + "/" + key);
+                                    }
+                                }
                             }
                         }
                     }

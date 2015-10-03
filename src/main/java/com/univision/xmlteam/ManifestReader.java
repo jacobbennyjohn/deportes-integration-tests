@@ -26,7 +26,7 @@ import java.net.URI;
 import java.util.*;
 
 /**
- * Created by jbjohn on 10/2/15.
+ * ManifestReader
  */
 public class ManifestReader {
 
@@ -86,6 +86,9 @@ public class ManifestReader {
      * @return a server response body as a string.
      */
     public String getXMLTeamURL(String url) throws IOException {
+
+        LOGGER.info("Manifest url : " + url);
+
         URI uri = URI.create(url);
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet httpGet = new HttpGet();
@@ -104,7 +107,7 @@ public class ManifestReader {
 
     public List<String> fetchLinksAndProcess(String url) {
 
-        String response = null;
+        String response;
         List<String> feedUrls = null;
         try {
             response = getXMLTeamURL(url);

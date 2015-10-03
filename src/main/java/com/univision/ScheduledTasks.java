@@ -1,6 +1,7 @@
 package com.univision;
 
 import com.univision.properties.FeedsynProperties;
+import com.univision.properties.NotificationProperties;
 import com.univision.properties.XmlteamProperties;
 import com.univision.validator.FeedValidator;
 import org.slf4j.Logger;
@@ -24,11 +25,15 @@ public class ScheduledTasks {
     @Autowired
     private XmlteamProperties xmlteam;
 
-    @Scheduled(fixedRate = 1000)
+    @Autowired
+    private NotificationProperties notification;
+
+    @Scheduled(fixedRate = 30000)
     public void reportCurrentTime() {
         LOGGER.info("Running validation at : " + dateFormat.format(new Date()));
 
         FeedValidator feedValidator = new FeedValidator();
+        feedValidator.setNotificationTtl(notification.getTtl());
         feedValidator.freshnessCheck(feedsyn.getUrl(), xmlteam.getManifest(), xmlteam.getBaseurl());
     }
 }

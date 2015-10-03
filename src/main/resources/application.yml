@@ -1,7 +1,17 @@
 feedsyn:
   url: http://sports.dev.y.univision.com
+
 xmlteam:
   baseurl: http://feed5.xmlteam.com/sportsml/files/
   manifest: http://feed5.xmlteam.com/api/feeds?start=PT1M&format=xml&sport-keys=15054000
+
 server:
-  port: 8080
+  port: 8081
+
+security:
+  user:
+    name: admin
+    password: secret
+
+notification:
+  ttl: 30
