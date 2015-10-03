@@ -20,6 +20,6 @@ public class Setter extends InMap {
 
     @Override
     public Object getValue(Object value) {
-        return this.value;
+        return Setter.value;
     }
 }

@@ -2,7 +2,11 @@ package com.jbjohn.model.common;
 
 import com.jbjohn.utils.Generic;
 
-import java.util.*;
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  */

@@ -3,17 +3,21 @@ package com.jbjohn;
 import com.jbjohn.model.Caster;
 import com.jbjohn.model.Getter;
 import com.jbjohn.model.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 public class MapUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapUtil.class);
 
     public static Object get(Object map, String key) {
         Object response = null;
         try {
             response = Getter.searchByPath(map, key);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception in Get", e);
         }
         return response;
     }
@@ -23,7 +27,7 @@ public class MapUtil {
         try {
             response = Setter.setByPath(map, key, value);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception in Set", e);
         }
         return response;
     }
@@ -33,7 +37,7 @@ public class MapUtil {
         try {
             response = Caster.setByPath(map, key, type);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception in Parse", e);
         }
         return response;
     }

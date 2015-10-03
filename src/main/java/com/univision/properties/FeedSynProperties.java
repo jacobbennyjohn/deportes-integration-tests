@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-@ConfigurationProperties(prefix="feedsyn")
+@ConfigurationProperties(prefix = "feedsyn")
 public class FeedsynProperties {
 
     private String url;

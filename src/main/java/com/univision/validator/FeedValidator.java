@@ -3,12 +3,10 @@ package com.univision.validator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbjohn.MapUtil;
 import com.univision.feedsyn.FeedProcessor;
-import com.univision.properties.FeedsynProperties;
 import com.univision.xmlteam.ManifestReader;
 import com.univision.xmlteam.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -28,16 +26,9 @@ public class FeedValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedValidator.class);
 
-    @Autowired
-    private FeedsynProperties feedsynProperties;
+    @SuppressWarnings("unchecked")
+	public void freshnessCheck(String fsynUrl, String manifestUrl, String feedDomain) {
 
-    public void freshnessCheck() {
-
-        try {
-            LOGGER.info(feedsynProperties.getUrl());
-        } catch (Exception e) {
-            LOGGER.error("", e);
-        }
         /**
          * 1. Check the manifest from xml team
          * 2. Fetch the files that are older than 30 seconds
@@ -46,10 +37,8 @@ public class FeedValidator {
          * 5. Validate the feed against the feedsyn response
          */
 
-        String manifestUrl = "http://feed5.xmlteam.com/api/feeds?start=PT2M&format=xml&sport-keys=15054000";
-        String feedDomain = "http://feed5.xmlteam.com/sportsml/files/";
         ManifestReader manifestReader = new ManifestReader();
-        FeedProcessor fp = new FeedProcessor();
+        FeedProcessor fp = new FeedProcessor(fsynUrl);
         List<String> urlList = manifestReader.fetchLinksAndProcess(manifestUrl);
         if (urlList != null) {
             for (String url : urlList) {
@@ -77,7 +66,7 @@ public class FeedValidator {
                             Date dateResult1 = dateFormat.parse(date);
                             Date dateResult2 = dateFormat.parse(dateRecieved);
 
-                            Long secondsDiff = TimeUnit.MILLISECONDS.toSeconds(dateResult2.getTime() - dateResult1.getTime());
+                            Long secondsDiff = TimeUnit.MILLISECONDS.toSeconds(dateResult1.getTime() - dateResult2.getTime());
 
                             LOGGER.warn("Document not updated yet, date Actual/FeedSyn : " + date + "/" + dateRecieved + " == Fixture/Key : " + fixture + "/" + key);
                             LOGGER.warn("Last update delay (in seconds) :" + secondsDiff);

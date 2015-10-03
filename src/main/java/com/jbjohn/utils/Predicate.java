@@ -76,7 +76,7 @@ public class Predicate {
 
     public static Object process(Object map, String predicate) {
 
-        for (Operator operator : Operator.values()) check(operator, predicate);
+        for (Operator operatorVal : Operator.values()) check(operatorVal, predicate);
 
         if (map instanceof ArrayList) {
             ArrayList request = (ArrayList) map;

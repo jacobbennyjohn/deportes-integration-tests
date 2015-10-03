@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 /**
  */
 @Component
-@ConfigurationProperties(prefix="xmlteam")
+@ConfigurationProperties(prefix = "xmlteam")
 public class XmlteamProperties {
 
     private String baseurl;

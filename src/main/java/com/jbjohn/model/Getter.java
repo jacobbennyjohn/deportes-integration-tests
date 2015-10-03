@@ -3,7 +3,11 @@ package com.jbjohn.model;
 import com.jbjohn.utils.Generic;
 import com.jbjohn.utils.Predicate;
 
-import java.util.*;
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 /**
  */
 public class Getter {
@@ -52,7 +56,7 @@ public class Getter {
     }
 
     private static Object search(Collection map) {
-        ArrayList<Object> response = new ArrayList<Object>();
+        ArrayList<Object> response = new ArrayList<>();
         for (Object item : map) {
             response.add(item);
         }

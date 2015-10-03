@@ -18,6 +18,12 @@ import java.net.URISyntaxException;
 public class FeedProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedProcessor.class);
+    
+    private String fsynUrl;
+    
+    public FeedProcessor(String fsynUrl) {
+    	this.fsynUrl = fsynUrl;
+    }
 
     public String processFeed(String type, String gameId) throws URISyntaxException, IOException {
         HttpClient httpClient = HttpClientBuilder.create().build();
@@ -38,7 +44,7 @@ public class FeedProcessor {
                 break;
         }
         String signature = SignatureGenerator.generateSignature(url);
-        url = "http://sports.dev.y.univision.com" + url + "?client_id=" + SignatureGenerator.getClientId() + "&signature=" + signature;
+        url = fsynUrl + url + "?client_id=" + SignatureGenerator.getClientId() + "&signature=" + signature;
         URI uri = new URI(url);
         LOGGER.info("Processing :" + url);
         httpGet.setURI(uri);

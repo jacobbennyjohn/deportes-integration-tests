@@ -1,12 +1,15 @@
 package com.jbjohn.model;
 
-import com.jbjohn.model.common.InMap;
+import com.jbjohn.MapUtil;import com.jbjohn.model.common.InMap;
 import com.jbjohn.utils.Generic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 public class Caster extends InMap {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InMap.class);
     private static Type type = Type.STRING;
 
     public static Object setByPath(Object map, String key, Type type) {
@@ -23,7 +26,7 @@ public class Caster extends InMap {
         try {
             response = type.getValue(value);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception getting value", e);
         }
         return response;
     }
