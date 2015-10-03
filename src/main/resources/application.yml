@@ -1,0 +1,7 @@
+server:
+  port: 8081
+feedsyn:
+  url: test
+xmlteam:
+  baseurl: http://feed5.xmlteam.com/sportsml/files/
+  manifest: http://feed5.xmlteam.com/api/feeds?start=PT1H&format=xml&sport-keys=15054000

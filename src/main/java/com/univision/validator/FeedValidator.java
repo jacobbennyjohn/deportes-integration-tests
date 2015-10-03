@@ -3,10 +3,13 @@ package com.univision.validator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbjohn.MapUtil;
 import com.univision.feedsyn.FeedProcessor;
+import com.univision.properties.FeedsynProperties;
 import com.univision.xmlteam.ManifestReader;
 import com.univision.xmlteam.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,11 +23,21 @@ import java.util.concurrent.TimeUnit;
 
 /**
  */
+@Component
 public class FeedValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedValidator.class);
 
-    public static void freshnessCheck() {
+    @Autowired
+    private FeedsynProperties feedsynProperties;
+
+    public void freshnessCheck() {
+
+        try {
+            LOGGER.info(feedsynProperties.getUrl());
+        } catch (Exception e) {
+            LOGGER.error("", e);
+        }
         /**
          * 1. Check the manifest from xml team
          * 2. Fetch the files that are older than 30 seconds
@@ -32,6 +45,7 @@ public class FeedValidator {
          * 4. Generate Feed syn url for the feeds objects
          * 5. Validate the feed against the feedsyn response
          */
+
         String manifestUrl = "http://feed5.xmlteam.com/api/feeds?start=PT2M&format=xml&sport-keys=15054000";
         String feedDomain = "http://feed5.xmlteam.com/sportsml/files/";
         ManifestReader manifestReader = new ManifestReader();
