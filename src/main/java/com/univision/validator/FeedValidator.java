@@ -7,6 +7,7 @@ import com.univision.xmlteam.ManifestReader;
 import com.univision.xmlteam.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -27,6 +28,7 @@ public class FeedValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedValidator.class);
 
     @SuppressWarnings("unchecked")
+    @Async
 	public void freshnessCheck(String fsynUrl, String manifestUrl, String feedDomain) {
 
         /**
