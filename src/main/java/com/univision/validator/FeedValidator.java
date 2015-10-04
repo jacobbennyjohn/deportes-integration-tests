@@ -2,7 +2,9 @@ package com.univision.validator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbjohn.MapUtil;
+import com.univision.EventRepository;
 import com.univision.feedsyn.FeedProcessor;
+import com.univision.storage.Record;
 import com.univision.xmlteam.ManifestReader;
 import com.univision.xmlteam.Normalizer;
 import org.slf4j.Logger;
@@ -29,8 +31,14 @@ public class FeedValidator {
 
     private Long notificationTtl = 30L;
 
+    private EventRepository storage;
+
     public void setNotificationTtl(Long notificationTtl) {
         this.notificationTtl = notificationTtl;
+    }
+
+    public void setStorage(EventRepository storage) {
+        this.storage = storage;
     }
 
     @SuppressWarnings("unchecked")
@@ -71,6 +79,14 @@ public class FeedValidator {
                     Date documentDate = dateFormat.parse(date);
 
                     if (fixture != null && key != null) {
+
+                        Record record = new Record();
+                        record.setEventId(key);
+                        record.setFixture(fixture);
+                        record.setDocDate(documentDate);
+                        record.setStatus(Record.Status.MISSING);
+                        record.setDelayTime(0L);
+
                         String feedResponse = fp.processFeed(fixture, key);
                         if (feedResponse != null) {
                             HashMap<String, Object> feedSynMap = new ObjectMapper().readValue(feedResponse, HashMap.class);
@@ -79,15 +95,22 @@ public class FeedValidator {
                                 if (status.equals("success")) {
                                     String dateRecieved = (String) MapUtil.get(feedSynMap, "$.data.sports-content.sports-metadata.@date-time");
                                     LOGGER.info("Date/ReceivedDate : " + date + "/" + dateRecieved);
+                                    record.setStatus(Record.Status.UPDATED);
                                     if (!dateRecieved.equals(date)) {
                                         Date feedSynDocDate = dateFormat.parse(dateRecieved);
                                         Long lastUpdateDelay = TimeUnit.MILLISECONDS.toSeconds(documentDate.getTime() - feedSynDocDate.getTime());
 
-                                        LOGGER.warn("Hashcode : " + hashCode + " => " + "Document not updated yet, date Actual/FeedSyn : " + date + "/" + dateRecieved + " == Fixture/Key : " + fixture + "/" + key);
-                                        LOGGER.warn("Hashcode : " + hashCode + " => " + "Last update delay (in seconds) :" + lastUpdateDelay);
+                                        if (lastUpdateDelay > 0) {
 
-                                        if (lastUpdateDelay > notificationTtl) {
-                                            LOGGER.error("Hashcode : " + hashCode + " => " + "Document not updated after " + lastUpdateDelay + " seconds, Fixture/Key : " + fixture + "/" + key);
+                                            LOGGER.warn("Hashcode : " + hashCode + " => " + "Document not updated yet, date Actual/FeedSyn : " + date + "/" + dateRecieved + " == Fixture/Key : " + fixture + "/" + key);
+                                            LOGGER.warn("Hashcode : " + hashCode + " => " + "Last update delay (in seconds) :" + lastUpdateDelay);
+
+                                            if (lastUpdateDelay > notificationTtl) {
+                                                LOGGER.error("Hashcode : " + hashCode + " => " + "Document not updated after " + lastUpdateDelay + " seconds, Fixture/Key : " + fixture + "/" + key);
+                                            }
+
+                                            record.setStatus(Record.Status.DELAYED);
+                                            record.setDelayTime(lastUpdateDelay);
                                         }
                                     }
                                 } else {
@@ -99,7 +122,11 @@ public class FeedValidator {
                                 }
                             }
                         }
+
+                        LOGGER.info("Record object as json : " + record.toString());
+                        this.storage.save(record);
                     }
+
                 } catch (IOException e) {
                     LOGGER.error("IOException processing feeds", e);
                 } catch (Exception e) {

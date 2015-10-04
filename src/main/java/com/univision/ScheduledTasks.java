@@ -28,12 +28,16 @@ public class ScheduledTasks {
     @Autowired
     private NotificationProperties notification;
 
+    @Autowired
+    private EventRepository storage;
+
     @Scheduled(cron="*/30 * * * * *")
     public void reportCurrentTime() {
         LOGGER.info("Running validation at : " + dateFormat.format(new Date()));
 
         FeedValidator feedValidator = new FeedValidator();
         feedValidator.setNotificationTtl(notification.getTtl());
+        feedValidator.setStorage(storage);
         feedValidator.freshnessCheck(feedsyn.getUrl(), xmlteam.getManifest(), xmlteam.getBaseurl());
     }
 }
