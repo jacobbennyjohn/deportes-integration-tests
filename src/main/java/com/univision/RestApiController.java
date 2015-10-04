@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,17 +24,12 @@ public class RestApiController {
         model.put("title", "Deportes Integrations");
         model.put("content", "Deportes integration tests monitoring tool");
 
-        Map<String, Object> recordMap = new HashMap<>();
+        ArrayList<Record> recordList = new ArrayList<>();
         Iterable<Record> records = storage.findAll();
         for (Record record : records) {
-            String key = record.getId();
-            if (key == null) {
-                key = record.getEventId();
-            }
-            recordMap.put(key, record.toString());
+            recordList.add(record);
         }
-        model.put("records", recordMap);
-        storage.deleteAll();
+        model.put("records", recordList);
 
         return model;
     }

@@ -1,0 +1,8 @@
+table, td  {
+    border: 1px solid grey;
+    border-collapse: collapse;
+    padding: 5px;
+}
+.odd {
+    background-color: #f1f1f1;
+}

@@ -14,6 +14,31 @@
                 <h4>{{greeting.title}}</h4>
                 <p>{{greeting.content}}</p>
             </div>
+            <div ng-controller="activityList">
+                <table>
+                    <tr ng-repeat="x in actities">
+                        <td ng-if="$odd" class="odd">
+                            {{ x.eventId }}</td>
+                        <td ng-if="$even">
+                            {{ x.eventId }}</td>
+
+                        <td ng-if="$odd" class="odd">
+                            {{ x.fixture }}</td>
+                        <td ng-if="$even">
+                            {{ x.fixture }}</td>
+
+                        <td ng-if="$odd" class="odd">
+                            {{ x.status }}</td>
+                        <td ng-if="$even">
+                            {{ x.status }}</td>
+
+                        <td ng-if="$odd" class="odd">
+                            {{ x.delayTime }}</td>
+                        <td ng-if="$even">
+                            {{ x.delayTime }}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <script src="http://cdn.jsdelivr.net/webjars/angularjs/1.3.8/angular.min.js"
