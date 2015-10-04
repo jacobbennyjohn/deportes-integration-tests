@@ -123,6 +123,7 @@ public class FeedValidator {
                             }
                         }
 
+                        record.setId();
                         LOGGER.info("Record object as json : " + record.toString());
                         this.storage.save(record);
                     }

@@ -18,7 +18,7 @@ public class RestApiController {
     private EventRepository storage;
 
     @RequestMapping("/resource")
-    public Map<String,Object> home() {
+    public Map<String, Object> home() {
         Map<String, Object> model = new HashMap<>();
         model.put("title", "Deportes Integrations");
         model.put("content", "Deportes integration tests monitoring tool");
@@ -33,6 +33,7 @@ public class RestApiController {
             recordMap.put(key, record.toString());
         }
         model.put("records", recordMap);
+        storage.deleteAll();
 
         return model;
     }

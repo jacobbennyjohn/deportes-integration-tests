@@ -1,9 +1,7 @@
 package com.univision.storage;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-import javax.persistence.GeneratedValue;
 import java.util.Date;
 
 /**
@@ -27,8 +25,6 @@ public class Record {
         }
     }
 
-    @Id
-    @GeneratedValue(generator = "uuid")
     private String id;
 
     private String eventId;
@@ -39,6 +35,12 @@ public class Record {
 
     public String getId() {
         return id;
+    }
+
+    public void setId() {
+        if (eventId != null && fixture != null && docDate != null) {
+            this.id = eventId + ":" + fixture + ":" + docDate;
+        }
     }
 
     public String getEventId() {
@@ -83,6 +85,6 @@ public class Record {
 
     @Override
     public String toString() {
-        return String.format("Record[id=%s, eventId=%s, fixture=%s, date=%s, status=%s, delay=%s]", id, eventId, fixture, docDate, status, delayTime);
+        return String.format("record:{id:%s, eventId:%s, fixture:%s, date:%s, status:%s, delay:%s}", id, eventId, fixture, docDate, status, delayTime);
     }
 }
