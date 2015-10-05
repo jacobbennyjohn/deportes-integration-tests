@@ -1,5 +1,6 @@
 package com.univision;
 
+import com.univision.properties.NotificationProperties;
 import com.univision.storage.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -20,11 +21,15 @@ public class RestApiController {
     @Autowired
     private EventRepository storage;
 
+    @Autowired
+    private NotificationProperties notification;
+
     @RequestMapping("/resource")
     public Map<String, Object> home() {
         Map<String, Object> model = new HashMap<>();
-        model.put("title", "DEPORTES");
-        model.put("content", "IMT - Integrations Monitoring Tool");
+        model.put("title", notification.getTitle());
+        model.put("content", notification.getDescription());
+        model.put("ttl", notification.getTtl());
 
         ArrayList<Record> recordList = new ArrayList<>();
         PageRequest request = new PageRequest(0, 30, Sort.Direction.DESC, "docDate");

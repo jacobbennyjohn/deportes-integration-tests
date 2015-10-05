@@ -13,6 +13,7 @@ app.controller('activityList', function($scope, $http) {
     $scope.getData = function() {
         $http.get('rest/resource/').success(function(data) {
             $scope.actities = data.records;
+            $scope.ttl = data.ttl;
         })
     }
     $scope.getData();

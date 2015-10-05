@@ -12,17 +12,17 @@
         <canvas></canvas>
         <div class="container">
             <div ng-controller="home">
-                <h1 class="title">{{greeting.title}}</h1>
-                <p class="appname">{{greeting.content}}</p>
+                <h1 class="title">{{ greeting.title }}</h1>
+                <p class="appname">{{ greeting.content }}</p>
             </div>
             <div ng-controller="activityList">
                 <table>
                     <tr ng-repeat="record in actities">
                         <td ng-class-odd="'odd'">{{ record.eventId }}</td>
                         <td ng-class-odd="'odd'">{{ record.fixture }}</td>
-                        <td ng-class-odd="'odd'">{{ record.status }}</td>
-                        <td ng-class-odd="'odd'">{{ record.delayTime }}</td>
-                        <td ng-class-odd="'odd'" ng-class="{WARN: record.delayTime > 0, ERROR: record.delayTime >= 30}">{{ record.eventStatus }}</td>
+                        <td ng-class-odd="'odd'" ng-class="{WARN: record.delayTime > 0, ERROR: record.delayTime >= ttl}">{{ record.status }}</td>
+                        <td ng-class-odd="'odd'" ng-class="{WARN: record.delayTime > 0, ERROR: record.delayTime >= ttl}">{{ record.delayTime }}</td>
+                        <td ng-class-odd="'odd'" ng-class="{WARN: record.delayTime > 0, ERROR: record.delayTime >= ttl}">{{ record.eventStatus }}</td>
                         <td ng-class-odd="'odd'">{{ record.docDate | date:'medium' }}</td>
                     </tr>
                 </table>
@@ -34,7 +34,8 @@
         <script type="text/javascript" src="../js/deportes.js"
                 th:src="@{/js/deportes.js}"></script>
 
-        <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script src="http://cdn.jsdelivr.net/webjars/jquery/1.11.1/jquery.min.js"
+                th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
         <script type="text/javascript" src="../js/canvas.js"
                 th:src="@{/js/canvas.js}"></script>
     </body>
