@@ -3,7 +3,9 @@ package com.univision.validator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbjohn.MapUtil;
 import com.univision.EventRepository;
+import com.univision.InformationRepository;
 import com.univision.feedsyn.FeedProcessor;
+import com.univision.storage.Information;
 import com.univision.storage.Record;
 import com.univision.xmlteam.ManifestReader;
 import com.univision.xmlteam.Normalizer;
@@ -34,12 +36,18 @@ public class FeedValidator {
 
     private EventRepository storage;
 
+    private InformationRepository info;
+
     public void setNotificationTtl(Long notificationTtl) {
         this.notificationTtl = notificationTtl;
     }
 
     public void setStorage(EventRepository storage) {
         this.storage = storage;
+    }
+
+    public void setInfo(InformationRepository info) {
+        this.info = info;
     }
 
     @SuppressWarnings("unchecked")
@@ -142,6 +150,46 @@ public class FeedValidator {
                         record.setId();
                         LOGGER.info("Record object as json : " + record.toString());
                         this.storage.save(record);
+
+                        /**
+                         * 1. Minutes elapsed
+                         * 2. Team name home
+                         * 3. Team name away
+                         * 4. League name
+                         * 5. Score home
+                         * 6. Score away
+                         */
+
+                        if (fixture.equalsIgnoreCase("event-stats") || fixture.equalsIgnoreCase("event-stats-progressive")) {
+
+                            String leagueName = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==league].@code-name.[0]");
+
+                            String teamHome = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[0].team-metadata.name.@full");
+                            String teamAway = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[1].team-metadata.name.@full");
+
+                            LOGGER.info("Hashcode : " + hashCode + " => " + "League : " + leagueName + " home team : " + teamHome + " away team : " + teamAway);
+
+                            if (!eventStatus.equals("pre-event")) {
+                                /**
+                                 * Check for scores
+                                 * time elapsed
+                                 */
+                                String teamHomeScore = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[0].team-stats.@score");
+                                String teamAwayScore = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[1].team-stats.@score");
+                                String timeElapsed = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.event-metadata-soccer.@minutes-elapsed");
+
+                                LOGGER.info("Hashcode : " + hashCode + " => " + " home score : " + teamHomeScore + " away score : " + teamAwayScore + " time elapsed : " + timeElapsed);
+
+                                storeInformation(record.getId(), record.getFixture(), "HomeTeamScore", teamHomeScore);
+                                storeInformation(record.getId(), record.getFixture(), "HomeTeamScore", teamAwayScore);
+                                storeInformation(record.getId(), record.getFixture(), "TimeElapsed", timeElapsed);
+                            }
+
+                            storeInformation(record.getId(), record.getFixture(), "League", leagueName);
+
+                            storeInformation(record.getId(), record.getFixture(), "HomeTeam", teamHome);
+                            storeInformation(record.getId(), record.getFixture(), "AwayTeam", teamAway);
+                        }
                     }
 
                 } catch (IOException e) {
@@ -152,5 +200,16 @@ public class FeedValidator {
             }
             LOGGER.info("Hashcode : " + hashCode + " => " + "Processing complete!");
         }
+    }
+
+    private void storeInformation(String id, String type, String key, String value) {
+
+        Information information = new Information();
+        information.setId(id);
+        information.setType(type);
+        information.setKey(key);
+        information.setValue(value);
+
+        this.info.save(information);
     }
 }

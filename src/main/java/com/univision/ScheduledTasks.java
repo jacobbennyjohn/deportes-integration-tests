@@ -31,13 +31,17 @@ public class ScheduledTasks {
     @Autowired
     private EventRepository storage;
 
-    @Scheduled(cron="*/30 * * * * *")
+    @Autowired
+    private InformationRepository info;
+
+    @Scheduled(cron = "${cron.expression}")
     public void reportCurrentTime() {
         LOGGER.info("Running validation at : " + dateFormat.format(new Date()));
 
         FeedValidator feedValidator = new FeedValidator();
         feedValidator.setNotificationTtl(notification.getTtl());
         feedValidator.setStorage(storage);
+        feedValidator.setInfo(info);
         feedValidator.freshnessCheck(feedsyn.getUrl(), xmlteam.getManifest(), xmlteam.getBaseurl());
     }
 }
