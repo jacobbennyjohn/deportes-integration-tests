@@ -10,12 +10,12 @@
     </head>
     <body ng-app="deportes">
         <canvas></canvas>
-        <div class="container">
-            <div ng-controller="home">
+        <div class="container-fluid">
+            <div ng-controller="home" class="row">
                 <h1 class="title">{{ greeting.title }}</h1>
                 <p class="appname">{{ greeting.content }}</p>
             </div>
-            <div ng-controller="activityList">
+            <div ng-controller="activityList" class="row">
                 <table class="table">
                     <tr ng-repeat="record in actities">
                         <td ng-class-odd="'odd'">{{ record.eventId }}</td>
