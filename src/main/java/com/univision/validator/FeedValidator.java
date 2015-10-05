@@ -82,11 +82,12 @@ public class FeedValidator {
                     String fixture = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.@fixture-key");
                     String key = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-key");
                     String eventStatus = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-status");
+                    String tournamentId = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==tournament].@code-key.[0]");
 
                     Map<String, String> additionalQueryParams = new HashMap<>();
 
                     if (fixture.equalsIgnoreCase("standings")) {
-                        key = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==tournament].@code-key.[0]");
+                        key = tournamentId;
                         String season = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==season].@code-key.[0]");
 
                         additionalQueryParams.put("leagueKey", key);
@@ -151,44 +152,36 @@ public class FeedValidator {
                         LOGGER.info("Record object as json : " + record.toString());
                         this.storage.save(record);
 
-                        /**
-                         * 1. Minutes elapsed
-                         * 2. Team name home
-                         * 3. Team name away
-                         * 4. League name
-                         * 5. Score home
-                         * 6. Score away
-                         */
-
                         if (fixture.equalsIgnoreCase("event-stats") || fixture.equalsIgnoreCase("event-stats-progressive")) {
 
+                            Map<String, String> map = new HashMap<>();
                             String leagueName = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==league].@code-name.[0]");
 
                             String teamHome = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[0].team-metadata.name.@full");
                             String teamAway = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[1].team-metadata.name.@full");
 
-                            LOGGER.info("Hashcode : " + hashCode + " => " + "League : " + leagueName + " home team : " + teamHome + " away team : " + teamAway);
+                            String teamHomeKey = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[0].team-metadata.@team-key");
+                            String teamAwayKey = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[1].team-metadata.@team-key");
 
                             if (!eventStatus.equals("pre-event")) {
-                                /**
-                                 * Check for scores
-                                 * time elapsed
-                                 */
+
                                 String teamHomeScore = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[0].team-stats.@score");
                                 String teamAwayScore = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[1].team-stats.@score");
                                 String timeElapsed = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.event-metadata-soccer.@minutes-elapsed");
 
-                                LOGGER.info("Hashcode : " + hashCode + " => " + " home score : " + teamHomeScore + " away score : " + teamAwayScore + " time elapsed : " + timeElapsed);
-
-                                storeInformation(record.getId(), record.getFixture(), "HomeTeamScore", teamHomeScore);
-                                storeInformation(record.getId(), record.getFixture(), "HomeTeamScore", teamAwayScore);
-                                storeInformation(record.getId(), record.getFixture(), "TimeElapsed", timeElapsed);
+                                map.put("HomeTeamScore", teamHomeScore);
+                                map.put("AwayTeamScore", teamAwayScore);
+                                map.put("TimeElapsed", timeElapsed);
                             }
 
-                            storeInformation(record.getId(), record.getFixture(), "League", leagueName);
+                            map.put("League", leagueName);
+                            map.put("HomeTeam", teamHome);
+                            map.put("AwayTeam", teamAway);
+                            map.put("leagueId", tournamentId);
+                            map.put("teamHomeKey", teamHomeKey);
+                            map.put("teamAwayKey", teamAwayKey);
 
-                            storeInformation(record.getId(), record.getFixture(), "HomeTeam", teamHome);
-                            storeInformation(record.getId(), record.getFixture(), "AwayTeam", teamAway);
+                            storeInformation(record.getId(), record.getFixture(), map);
                         }
                     }
 
@@ -202,13 +195,12 @@ public class FeedValidator {
         }
     }
 
-    private void storeInformation(String id, String type, String key, String value) {
+    private void storeInformation(String id, String type, Map<String, String> map) {
 
         Information information = new Information();
         information.setId(id);
         information.setType(type);
-        information.setKey(key);
-        information.setValue(value);
+        information.setMap(map);
 
         this.info.save(information);
     }

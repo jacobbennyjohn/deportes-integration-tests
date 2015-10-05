@@ -2,8 +2,9 @@ package com.univision.storage;
 
 import org.springframework.data.elasticsearch.annotations.Document;
 
+import java.util.Map;
+
 /**
- * Created by jbjohn on 10/5/15.
  */
 @Document(indexName = "deportes", type = "information")
 public class Information {
@@ -11,8 +12,7 @@ public class Information {
     private String id;
     private String type;
 
-    private String key;
-    private String value;
+    private Map<String, String> map;
 
     public String getId() {
         return id;
@@ -30,24 +30,16 @@ public class Information {
         this.type = type;
     }
 
-    public String getKey() {
-        return key;
+    public Map<String, String> getMap() {
+        return map;
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
+    public void setMap(Map<String, String> map) {
+        this.map = map;
     }
 
     @Override
     public String toString() {
-        return String.format("information:{id:%s, type:%s, key:%s, value:%s}", id, type, key, value);
+        return String.format("information:{id:%s, type:%s, map:%s}", id, type, map);
     }
 }
