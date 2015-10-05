@@ -23,12 +23,11 @@ public class RestApiController {
     @RequestMapping("/resource")
     public Map<String, Object> home() {
         Map<String, Object> model = new HashMap<>();
-        model.put("title", "Deportes Integrations");
-        model.put("content", "Deportes integration tests monitoring tool");
+        model.put("title", "Deportes");
+        model.put("content", "Deportes integrations monitoring tool");
 
         ArrayList<Record> recordList = new ArrayList<>();
         PageRequest request = new PageRequest(0, 30, Sort.Direction.DESC, "docDate");
-        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "docDate"));
         Iterable<Record> records = storage.findAll(request);
         for (Record record : records) {
             recordList.add(record);

@@ -32,6 +32,7 @@ public class Record {
     private Date   docDate;
     private Status status;
     private Long delayTime;
+    private String eventStatus;
 
     public String getId() {
         return id;
@@ -83,8 +84,16 @@ public class Record {
         this.delayTime = delayTime;
     }
 
+    public String getEventStatus() {
+        return eventStatus;
+    }
+
+    public void setEventStatus(String eventStatus) {
+        this.eventStatus = eventStatus;
+    }
+
     @Override
     public String toString() {
-        return String.format("record:{id:%s, eventId:%s, fixture:%s, date:%s, status:%s, delay:%s}", id, eventId, fixture, docDate, status, delayTime);
+        return String.format("record:{id:%s, eventId:%s, fixture:%s, date:%s, status:%s, delay:%s, eventStatus:%s}", id, eventId, fixture, docDate, status, delayTime, eventStatus);
     }
 }

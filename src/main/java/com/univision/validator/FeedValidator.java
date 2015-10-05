@@ -72,6 +72,7 @@ public class FeedValidator {
                     String date = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.@date-time");
                     String fixture = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.@fixture-key");
                     String key = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-key");
+                    String eventStatus = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-status");
 
                     LOGGER.info("Hashcode : " + hashCode + " => " + "Date/Fixture/Key : " + date + "/" + fixture + "/" + key);
 
@@ -86,6 +87,7 @@ public class FeedValidator {
                         record.setDocDate(documentDate);
                         record.setStatus(Record.Status.MISSING);
                         record.setDelayTime(0L);
+                        record.setEventStatus(eventStatus);
 
                         String feedResponse = fp.processFeed(fixture, key);
                         if (feedResponse != null) {

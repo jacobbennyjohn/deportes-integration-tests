@@ -16,26 +16,13 @@
             </div>
             <div ng-controller="activityList">
                 <table>
-                    <tr ng-repeat="x in actities">
-                        <td ng-if="$odd" class="odd">
-                            {{ x.eventId }}</td>
-                        <td ng-if="$even">
-                            {{ x.eventId }}</td>
-
-                        <td ng-if="$odd" class="odd">
-                            {{ x.fixture }}</td>
-                        <td ng-if="$even">
-                            {{ x.fixture }}</td>
-
-                        <td ng-if="$odd" class="odd">
-                            {{ x.status }}</td>
-                        <td ng-if="$even">
-                            {{ x.status }}</td>
-
-                        <td ng-if="$odd" class="odd">
-                            {{ x.delayTime }}</td>
-                        <td ng-if="$even">
-                            {{ x.delayTime }}</td>
+                    <tr ng-repeat="record in actities">
+                        <td ng-class-odd="'odd'">{{ record.eventId }}</td>
+                        <td ng-class-odd="'odd'">{{ record.fixture }}</td>
+                        <td ng-class-odd="'odd'">{{ record.status }}</td>
+                        <td ng-class-odd="'odd'">{{ record.delayTime }}</td>
+                        <td ng-class-odd="'odd'" ng-class="{WARN: record.delayTime > 0, ERROR: record.delayTime >= 30}">{{ record.eventStatus }}</td>
+                        <td ng-class-odd="'odd'">{{ record.docDate | date:'medium' }}</td>
                     </tr>
                 </table>
             </div>

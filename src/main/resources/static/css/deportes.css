@@ -6,3 +6,9 @@ table, td  {
 .odd {
     background-color: #f1f1f1;
 }
+.WARN {
+    color : darkorange;
+}
+.ERROR {
+    color : crimson;
+}
