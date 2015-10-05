@@ -1,13 +1,21 @@
 package com.univision.storage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.elasticsearch.annotations.Document;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 /**
  */
 @Document(indexName = "deportes", type = "record")
 public class Record {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Record.class);
 
     public enum Status {
 
@@ -40,7 +48,15 @@ public class Record {
 
     public void setId() {
         if (eventId != null && fixture != null && docDate != null) {
-            this.id = eventId + ":" + fixture + ":" + docDate;
+            String string = eventId + ":" + fixture + ":" + docDate;
+            MessageDigest md5 = null;
+            try {
+                md5 = MessageDigest.getInstance("MD5");
+                md5.update(StandardCharsets.UTF_8.encode(string));
+                this.id = String.format("%032x", new BigInteger(1, md5.digest()));
+            } catch (NoSuchAlgorithmException e) {
+                LOGGER.error("Exception generating record Id", e);
+            }
         }
     }
 

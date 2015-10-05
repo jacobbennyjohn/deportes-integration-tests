@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -74,6 +75,16 @@ public class FeedValidator {
                     String key = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-key");
                     String eventStatus = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-status");
 
+                    Map<String, String> additionalQueryParams = new HashMap<>();
+
+                    if (fixture.equalsIgnoreCase("standings")) {
+                        key = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==tournament].@code-key.[0]");
+                        String season = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==season].@code-key.[0]");
+
+                        additionalQueryParams.put("leagueKey", key);
+                        additionalQueryParams.put("seasonKey", season);
+                    }
+
                     LOGGER.info("Hashcode : " + hashCode + " => " + "Date/Fixture/Key : " + date + "/" + fixture + "/" + key);
 
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
@@ -89,6 +100,7 @@ public class FeedValidator {
                         record.setDelayTime(0L);
                         record.setEventStatus(eventStatus);
 
+                        fp.setAdditionalQueryParams(additionalQueryParams);
                         String feedResponse = fp.processFeed(fixture, key);
                         if (feedResponse != null) {
                             HashMap<String, Object> feedSynMap = new ObjectMapper().readValue(feedResponse, HashMap.class);
