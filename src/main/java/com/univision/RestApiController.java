@@ -2,6 +2,8 @@ package com.univision;
 
 import com.univision.storage.Record;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,7 +27,9 @@ public class RestApiController {
         model.put("content", "Deportes integration tests monitoring tool");
 
         ArrayList<Record> recordList = new ArrayList<>();
-        Iterable<Record> records = storage.findAll();
+        PageRequest request = new PageRequest(0, 30, Sort.Direction.DESC, "docDate");
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "docDate"));
+        Iterable<Record> records = storage.findAll(request);
         for (Record record : records) {
             recordList.add(record);
         }
