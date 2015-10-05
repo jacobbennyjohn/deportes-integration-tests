@@ -113,6 +113,8 @@ public class FeedValidator {
 
                                             record.setStatus(Record.Status.DELAYED);
                                             record.setDelayTime(lastUpdateDelay);
+                                        } else {
+                                            LOGGER.info("Hashcode : " + hashCode + " => " + " time difference : " + lastUpdateDelay.toString());
                                         }
                                     }
                                 } else {
