@@ -23,8 +23,8 @@ public class RestApiController {
     @RequestMapping("/resource")
     public Map<String, Object> home() {
         Map<String, Object> model = new HashMap<>();
-        model.put("title", "Deportes");
-        model.put("content", "Deportes integrations monitoring tool");
+        model.put("title", "DEPORTES");
+        model.put("content", "IMT - Integrations Monitoring Tool");
 
         ArrayList<Record> recordList = new ArrayList<>();
         PageRequest request = new PageRequest(0, 30, Sort.Direction.DESC, "docDate");

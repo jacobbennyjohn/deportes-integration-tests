@@ -1,14 +1,32 @@
+html, body {
+    background: black;
+    margin: 0;
+    color: rgba(169, 169, 169, 0.9);
+}
+
+canvas {
+    position: absolute;
+}
+
 table, td  {
-    border: 1px solid grey;
+    border: 1px solid rgba(169, 169, 169, 0.5);
     border-collapse: collapse;
     padding: 5px;
 }
 .odd {
-    background-color: #f1f1f1;
+    background-color : rgba(169, 169, 169, 0.5);
 }
 .WARN {
-    color : darkorange;
+    color : rgba(169, 169, 169, 0.9);
 }
 .ERROR {
-    color : crimson;
+    color : rgba(220, 30, 60, 0.9);
+}
+
+h1.title {
+    font-size: 88px;
+}
+
+p.appname {
+    font-size: 32px;
 }
