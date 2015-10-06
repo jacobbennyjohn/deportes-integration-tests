@@ -15,7 +15,7 @@ security:
 
 notification:
   ttl: 30
-  title: DEPORTES
+  title: D E P O R T E S
   description: IMT - Integrations Monitoring Tool
 
 cron:
