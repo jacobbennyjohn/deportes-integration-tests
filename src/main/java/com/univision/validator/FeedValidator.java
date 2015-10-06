@@ -3,7 +3,9 @@ package com.univision.validator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbjohn.MapUtil;
 import com.univision.EventRepository;
+import com.univision.InformationRepository;
 import com.univision.feedsyn.FeedProcessor;
+import com.univision.storage.Information;
 import com.univision.storage.Record;
 import com.univision.xmlteam.ManifestReader;
 import com.univision.xmlteam.Normalizer;
@@ -20,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,12 +36,18 @@ public class FeedValidator {
 
     private EventRepository storage;
 
+    private InformationRepository info;
+
     public void setNotificationTtl(Long notificationTtl) {
         this.notificationTtl = notificationTtl;
     }
 
     public void setStorage(EventRepository storage) {
         this.storage = storage;
+    }
+
+    public void setInfo(InformationRepository info) {
+        this.info = info;
     }
 
     @SuppressWarnings("unchecked")
@@ -73,6 +82,17 @@ public class FeedValidator {
                     String fixture = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.@fixture-key");
                     String key = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-key");
                     String eventStatus = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.@event-status");
+                    String tournamentId = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==tournament].@code-key.[0]");
+
+                    Map<String, String> additionalQueryParams = new HashMap<>();
+
+                    if (fixture.equalsIgnoreCase("standings")) {
+                        key = tournamentId;
+                        String season = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==season].@code-key.[0]");
+
+                        additionalQueryParams.put("leagueKey", key);
+                        additionalQueryParams.put("seasonKey", season);
+                    }
 
                     LOGGER.info("Hashcode : " + hashCode + " => " + "Date/Fixture/Key : " + date + "/" + fixture + "/" + key);
 
@@ -89,6 +109,7 @@ public class FeedValidator {
                         record.setDelayTime(0L);
                         record.setEventStatus(eventStatus);
 
+                        fp.setAdditionalQueryParams(additionalQueryParams);
                         String feedResponse = fp.processFeed(fixture, key);
                         if (feedResponse != null) {
                             HashMap<String, Object> feedSynMap = new ObjectMapper().readValue(feedResponse, HashMap.class);
@@ -130,6 +151,38 @@ public class FeedValidator {
                         record.setId();
                         LOGGER.info("Record object as json : " + record.toString());
                         this.storage.save(record);
+
+                        if (fixture.equalsIgnoreCase("event-stats") || fixture.equalsIgnoreCase("event-stats-progressive")) {
+
+                            Map<String, String> map = new HashMap<>();
+                            String leagueName = (String) MapUtil.get(jsonMap, "$.sports-content.sports-metadata.sports-content-codes.sports-content-code.[?@code-type==league].@code-name.[0]");
+
+                            String teamHome = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[0].team-metadata.name.@full");
+                            String teamAway = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[1].team-metadata.name.@full");
+
+                            String teamHomeKey = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[0].team-metadata.@team-key");
+                            String teamAwayKey = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[1].team-metadata.@team-key");
+
+                            if (!eventStatus.equals("pre-event")) {
+
+                                String teamHomeScore = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[0].team-stats.@score");
+                                String teamAwayScore = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.team.[1].team-stats.@score");
+                                String timeElapsed = (String) MapUtil.get(jsonMap, "$.sports-content.sports-event.event-metadata.event-metadata-soccer.@minutes-elapsed");
+
+                                map.put("HomeTeamScore", teamHomeScore);
+                                map.put("AwayTeamScore", teamAwayScore);
+                                map.put("TimeElapsed", timeElapsed);
+                            }
+
+                            map.put("League", leagueName);
+                            map.put("HomeTeam", teamHome);
+                            map.put("AwayTeam", teamAway);
+                            map.put("leagueId", tournamentId);
+                            map.put("teamHomeKey", teamHomeKey);
+                            map.put("teamAwayKey", teamAwayKey);
+
+                            storeInformation(record.getId(), record.getFixture(), map);
+                        }
                     }
 
                 } catch (IOException e) {
@@ -140,5 +193,15 @@ public class FeedValidator {
             }
             LOGGER.info("Hashcode : " + hashCode + " => " + "Processing complete!");
         }
+    }
+
+    private void storeInformation(String id, String type, Map<String, String> map) {
+
+        Information information = new Information();
+        information.setId(id);
+        information.setType(type);
+        information.setMap(map);
+
+        this.info.save(information);
     }
 }

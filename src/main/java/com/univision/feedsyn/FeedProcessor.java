@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  */
 public class FeedProcessor {
@@ -20,6 +23,8 @@ public class FeedProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedProcessor.class);
     
     private String fsynUrl;
+
+    private Map<String, String> additionalQueryParams = new HashMap<>();
     
     public FeedProcessor(String fsynUrl) {
     	this.fsynUrl = fsynUrl;
@@ -37,14 +42,19 @@ public class FeedProcessor {
             case "event-stats-progressive":
                 url = url + "event-stats/" + gameId;
                 break;
-            case "schedule":
-                url = url + "schedule-results/" + gameId;
+            case "standings":
+                url = url + "standings";
                 break;
             default:
                 break;
         }
-        String signature = SignatureGenerator.generateSignature(url);
+        String signature = new SignatureGenerator(additionalQueryParams).generateSignature(url);
         url = fsynUrl + url + "?client_id=" + SignatureGenerator.getClientId() + "&signature=" + signature;
+
+        for (Map.Entry<String, String> entry : additionalQueryParams.entrySet()) {
+            url += "&" + entry.getKey() + "=" + entry.getValue();
+        }
+
         URI uri = new URI(url);
         LOGGER.info("Processing : " + url);
         httpGet.setURI(uri);
@@ -60,5 +70,9 @@ public class FeedProcessor {
             return result.toString();
         }
         return null;
+    }
+
+    public void setAdditionalQueryParams(Map<String, String> additionalQueryParams) {
+        this.additionalQueryParams = additionalQueryParams;
     }
 }

@@ -17,3 +17,6 @@ notification:
   ttl: 30
   title: DEPORTES
   description: IMT - Integrations Monitoring Tool
+
+cron:
+  expression: "0/30 * * * * *"

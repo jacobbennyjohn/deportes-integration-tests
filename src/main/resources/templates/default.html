@@ -10,14 +10,23 @@
     </head>
     <body ng-app="deportes">
         <canvas></canvas>
-        <div class="container">
-            <div ng-controller="home">
+        <div class="container-fluid">
+            <div ng-controller="home" class="row">
                 <h1 class="title">{{ greeting.title }}</h1>
                 <p class="appname">{{ greeting.content }}</p>
             </div>
-            <div ng-controller="activityList">
+            <div ng-controller="activityList" class="row">
+                <div class="message">
+                    <div ng-show="peak">
+                        <div ng-show="information.map" class="alert fixed" ng-class="{'alert-info': delayTime == 0, 'alert-warning': delayTime > 0, 'alert-danger': delayTime >= ttl}">
+                            <span> {{information.map.League}} / </span>
+                            <span> {{information.map.HomeTeam}} vs {{information.map.AwayTeam}} / {{information.map.HomeTeamScore}} : {{information.map.AwayTeamScore}} / </span>
+                            <span> Time Elapsed : {{information.map.TimeElapsed}} </span>
+                        </div>
+                    </div>
+                </div>
                 <table class="table">
-                    <tr ng-repeat="record in actities">
+                    <tr ng-repeat="record in actities" ng-mouseover="hoverIn()" ng-mouseleave="hoverOut()">
                         <td ng-class-odd="'odd'">{{ record.eventId }}</td>
                         <td ng-class-odd="'odd'">{{ record.fixture }}</td>
                         <td ng-class-odd="'odd'" ng-class="{WARN: record.delayTime > 0, ERROR: record.delayTime >= ttl}">{{ record.status }}</td>
@@ -34,9 +43,9 @@
         <script type="text/javascript" src="../js/deportes.js"
                 th:src="@{/js/deportes.js}"></script>
 
-        <script src="http://cdn.jsdelivr.net/webjars/jquery/1.11.1/jquery.min.js"
-                th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
-        <script type="text/javascript" src="../js/canvas.js"
-                th:src="@{/js/canvas.js}"></script>
+        <!--<script src="http://cdn.jsdelivr.net/webjars/jquery/1.11.1/jquery.min.js"-->
+                <!--th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>-->
+        <!--<script type="text/javascript" src="../js/canvas.js"-->
+                <!--th:src="@{/js/canvas.js}"></script>-->
     </body>
 </html>
