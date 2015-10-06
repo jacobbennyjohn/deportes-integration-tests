@@ -15,6 +15,7 @@ security:
 
 notification:
   ttl: 30
+  limit: 25
   title: D E P O R T E S
   description: IMT - Integrations Monitoring Tool
 

@@ -38,7 +38,7 @@ public class RestApiController {
         model.put("ttl", notification.getTtl());
 
         ArrayList<Record> recordList = new ArrayList<>();
-        PageRequest request = new PageRequest(0, 30, Sort.Direction.DESC, "docDate");
+        PageRequest request = new PageRequest(0, notification.getLimit(), Sort.Direction.DESC, "docDate");
         Iterable<Record> records = storage.findAll(request);
         for (Record record : records) {
             recordList.add(record);

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class NotificationProperties {
 
     private Long ttl;
+    private int limit;
     private String title;
     private String description;
 
@@ -19,6 +20,14 @@ public class NotificationProperties {
 
     public void setTtl(Long ttl) {
         this.ttl = ttl;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
 
     public String getTitle() {
