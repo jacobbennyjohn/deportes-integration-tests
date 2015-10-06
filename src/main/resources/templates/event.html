@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <title th:text="'Event : ' + ${eventId}">Deportes Integrations</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"/>
+    <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.1/css/bootstrap.min.css"
+          th:href="@{/webjars/bootstrap/3.3.1/css/bootstrap.min.css}" rel="stylesheet" media="screen"/>
+    <link href="../css/deportes.css" th:href="@{/css/deportes.css}" rel="stylesheet" media="screen"/>
+</head>
+<body ng-app="event">
+<canvas></canvas>
+<div class="container-fluid">
+    <div class="row">
+        <p class="appname" th:text="'Event ' + ${eventId}"></p>
+    </div>
+    <div ng-controller="activityList" class="row">
+        <input type="hidden" th:value="${eventId}" id="eventId" name="eventId" />
+        <div class="message">
+            <div ng-show="peak">
+                <div ng-show="information.map" class="alert fixed" ng-class="{'alert-info': delayTime == 0, 'alert-warning': delayTime > 0, 'alert-danger': delayTime >= ttl}">
+                    <span> {{information.map.League}} / </span>
+                    <span> {{information.map.HomeTeam}} vs {{information.map.AwayTeam}} / {{information.map.HomeTeamScore}} : {{information.map.AwayTeamScore}} / </span>
+                    <span> Time Elapsed : {{information.map.TimeElapsed}} </span>
+                </div>
+            </div>
+        </div>
+        <table class="table">
+            <tr ng-repeat="record in actities" ng-mouseover="hoverIn()" ng-mouseleave="hoverOut()">
+                <td ng-class-odd="'odd'">{{ record.eventId }}</td>
+                <td ng-class-odd="'odd'">{{ record.fixture }}</td>
+                <td ng-class-odd="'odd'" ng-class="{WARN: record.delayTime > 0, ERROR: record.delayTime >= ttl}">{{ record.status }}</td>
+                <td ng-class-odd="'odd'" ng-class="{WARN: record.delayTime > 0, ERROR: record.delayTime >= ttl}">{{ record.delayTime }}</td>
+                <td ng-class-odd="'odd'" ng-class="{WARN: record.delayTime > 0, ERROR: record.delayTime >= ttl}">{{ record.eventStatus }}</td>
+                <td ng-class-odd="'odd'">{{ record.docDate | date:'medium' }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script src="http://cdn.jsdelivr.net/webjars/angularjs/1.3.8/angular.min.js"
+        th:src="@{/webjars/angularjs/1.3.8/angular.min.js}"></script>
+<script type="text/javascript" src="../js/deportes.js"
+        th:src="@{/js/deportes.js}"></script>
+
+<!--<script src="http://cdn.jsdelivr.net/webjars/jquery/1.11.1/jquery.min.js"-->
+<!--th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>-->
+<!--<script type="text/javascript" src="../js/canvas.js"-->
+<!--th:src="@{/js/canvas.js}"></script>-->
+</body>
+</html>

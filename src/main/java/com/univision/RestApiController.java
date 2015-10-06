@@ -6,6 +6,7 @@ import com.univision.storage.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +40,20 @@ public class RestApiController {
         ArrayList<Record> recordList = new ArrayList<>();
         PageRequest request = new PageRequest(0, 30, Sort.Direction.DESC, "docDate");
         Iterable<Record> records = storage.findAll(request);
+        for (Record record : records) {
+            recordList.add(record);
+        }
+        model.put("records", recordList);
+
+        return model;
+    }
+
+    @RequestMapping("/event/{eventId:[\\d]+}")
+    public Map<String, Object> event(@PathVariable final long eventId) {
+        Map<String, Object> model = new HashMap<>();
+        ArrayList<Record> recordList = new ArrayList<>();
+        Sort sort = new Sort(new Sort.Order(Sort.Direction.DESC, "docDate"));
+        Iterable<Record> records = storage.findByEventId(Long.toString(eventId), sort);
         for (Record record : records) {
             recordList.add(record);
         }
