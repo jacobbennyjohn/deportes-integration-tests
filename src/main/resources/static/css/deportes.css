@@ -50,3 +50,15 @@ p.appname {
     position: fixed;
     width: 98%;
 }
+
+.alert-info {
+    background-color: rgba(210, 230, 250, 0.8);
+}
+
+.alert-warning {
+    background-color: rgba(250, 250, 230, 0.8);
+}
+
+.alert-danger {
+    background-color: rgba(240, 220, 220, 0.8);
+}
