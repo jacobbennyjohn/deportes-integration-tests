@@ -19,4 +19,4 @@ notification:
   description: IMT - Integrations Monitoring Tool
 
 cron:
-  expression: "*/30 * * * * *"
+  expression: "0/30 * * * * *"

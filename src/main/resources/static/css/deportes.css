@@ -37,3 +37,16 @@ p.appname {
     max-width: 98%;
     margin: auto;
 }
+
+.message {
+    max-height: 60px;
+    height: 60px;
+    max-width: 98%;
+    margin: auto;
+    text-align: center;
+}
+
+.message .fixed {
+    position: fixed;
+    width: 98%;
+}
